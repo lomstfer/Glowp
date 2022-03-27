@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Text.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ftint.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ftint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\bubble0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\crimp.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\enemy.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\food.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\icon (2).png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\lavaground.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\lavagroundBig.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\layer0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\lilman.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\New Piskel-1.png.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\platform.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player_down.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player_up.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player4.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player5.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player6.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player7.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\player8.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid4.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid5.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid6.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\squid7.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angEat0.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angEat1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angEat2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angEat3.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler00.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler01.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler02.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler03.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler04.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler05.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler06.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler07.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler08.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\angler\angler09.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="assets\CascadiaCode.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
+  </ItemGroup>
+</Project>
