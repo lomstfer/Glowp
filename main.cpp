@@ -226,7 +226,6 @@ int main(int argc, char* args[])
 			inst2Text.render();
 			if (fpsVar % 100 == 0)
 			{
-				std::cout << "fps";
 				fpsText.text = std::to_string(int(1.0f / (deltaTime / 100.0f)));
 				fpsText.update();
 				fpsVar = 1;
