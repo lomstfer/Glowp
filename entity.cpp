@@ -18,7 +18,6 @@ Entity::Entity(SDL_Texture* etex, int srcW, int srcH, float ex, float ey, int ew
         y -= h / 2;
     }
     
-    
     srcRect.x = 0;
     srcRect.y = 0;
     srcRect.w = srcW;
@@ -74,7 +73,7 @@ void Entity::moveUpdate(double deltaTime, float damp)
     rect.y = ftint(y);
 }
 
-void Entity::downAlpha(int speed)
+void Entity::downAlpha(float speed)
 {
     if (alpha > 0)
         alpha -= speed;
@@ -84,7 +83,7 @@ void Entity::downAlpha(int speed)
     SDL_SetTextureAlphaMod(tex, alpha);
 }
 
-void Entity::upAlpha(int speed)
+void Entity::upAlpha(float speed)
 {
     if (alpha < randAlpha)
         alpha += speed;

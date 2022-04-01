@@ -74,9 +74,7 @@ int main(int argc, char* args[])
 	SDL_ShowCursor(SDL_DISABLE);
 	SDL_RenderSetLogicalSize(renderer, winW, winH);
 
-	// text class xD
-
-	Text titleText("GLOWP", 50, {0, 213, 255, 255}, "assets/CascadiaCode.ttf", winW / 2, 30, true, renderer);
+	Text titleText("GLOWP", 100, {0, 213, 255, 255}, "assets/CascadiaCode.ttf", winW / 2, 30, true, renderer);
 
 	Text resText("hee", 30, {255, 255, 255, 255}, "assets/CascadiaCode.ttf", winW / 2, winH / 2 - 40, true, renderer);
 
@@ -88,6 +86,12 @@ int main(int argc, char* args[])
 	
 	Text fpsText("fps", 20, {255, 255, 255, 255}, "assets/CascadiaCode.ttf", 0, 0, false, renderer);
 	int fpsVar = 100;
+
+	double gameTime = 0;
+	double score = 0;
+	double highscore = gameTime;
+	Text highScoreText("BEST TIME: " + std::to_string(ftint(float(highscore))),
+		40, { 255, 255, 255, 255 }, "assets/CascadiaCode.ttf", winW / 2, 200, true, renderer);
 
 	// playertex
 	SDL_Texture* plrT0 = IMG_LoadTexture(renderer, "assets/player0.png");
@@ -185,6 +189,9 @@ int main(int argc, char* args[])
 	bool level4 = false;
 	bool level4pre = false;
 
+	bool win = false;
+
+
 	// game loop
 	while (gameRunning)
 	{
@@ -235,13 +242,30 @@ int main(int argc, char* args[])
 				fpsVar += 1;
 			fpsText.render();
 
+			if (win)
+			{
+				if (ftint(highscore) > ftint(score))
+				{
+					highscore = gameTime;
+					highScoreText.text = "NEW HIGHSCORE: " + std::to_string(ftint(highscore)) + " seconds";
+				}
+				if (ftint(highscore) < ftint(score))
+				{
+					highScoreText.text = "HIGHSCORE: " + std::to_string(ftint(highscore)) + " seconds";
+				}
+
+				highScoreText.update();
+				highScoreText.render();
+			}
+
 			if (keys[SDL_SCANCODE_RETURN])
 			{
 				SDL_SetWindowSize(window, winW, winH);
 				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-
+				win = false;
 				menu = false;
-				level3pre = true;
+				level0pre = true;
+				gameTime = 0;
 				plr = Player(plrT, winW / 2, winH / 2, 32, 32);
 			}
 
@@ -250,13 +274,13 @@ int main(int argc, char* args[])
 		}
 		if (level0pre)
 		{
-			speed *= windowScale;
-
 			layer0 = Entity(layer0T, 50, 3, 0, winH - winW * 0.06f, 1280.0f, 76.8, 0, false);
-			layer0.alpha = 255;
-
+			layer0.alpha = 0;
+			layer0.randAlpha = 255;
+			plr.bool1 = true;
 			level0pre = false;
 			level0 = true;
+			plr.alpha = 0;
 		}
 		while (level0)
 		{
@@ -268,14 +292,19 @@ int main(int argc, char* args[])
 				ifquit(level0, gameRunning, event, window);
 			}
 
+			gameTime += deltaTime / 100.0;
+
 			// background color
 			SDL_SetRenderDrawColor(renderer, r, g, b, 0);
-
 			// clear old stuff with color
 			SDL_RenderClear(renderer);
+
+			layer0.upAlpha(3 * deltaTime);
+
 			layer0.update();
 			layer0.draw(renderer);
 
+			plr.upAlpha(deltaTime);
 			plr.update(winW, winH, deltaTime, keys);
 			plr.draw(plrTList, renderer);
 			// get the current frame and render it with the rotation
@@ -304,10 +333,12 @@ int main(int argc, char* args[])
 		}
 		if (level1pre)
 		{
-			plr.s_posX = winW / 2;
-			plr.s_posY = winH / 2;
+			plr.s_x = winW / 2;
+			plr.s_y = winH / 2;
 			plr.angle = 0;
 			plr.resetSpeed();
+			plr.alpha = 0;
+			plr.bool1 = true;
 			
 			// creating foods in random spots but in schools
 			for (int i = 0; i < 50; i++)
@@ -316,7 +347,7 @@ int main(int argc, char* args[])
 				int foodg_y = rand() % winH;
 				for (int i = 0; i < 10; i++)
 				{
-					Entity food = Entity(foodTexture, 1, 1, foodg_x + rand() % 200 - 100, foodg_y + rand() % 200 - 100, 4, 4, 0, true);
+					Entity food = Entity(foodTexture, 1, 1, foodg_x + rand() % 100 - 50, foodg_y + rand() % 100 - 50, 4, 4, 0, true);
 					food.scale = food.randAlpha / 200.0f;
 					foods.push_back(food);
 				}
@@ -334,6 +365,10 @@ int main(int argc, char* args[])
 				ifquit(level1, gameRunning, event, window);
 			}
 
+			plr.upAlpha(deltaTime);
+
+			gameTime += deltaTime / 100.0;
+
 			plr.noExplore(winW, winH);
 			plr.update(winW, winH, deltaTime, keys);
 
@@ -345,14 +380,14 @@ int main(int argc, char* args[])
 			// foods iteration that checks if they collide with the center of player, and deletes them
 			for (unsigned int i = 0; i < foods.size(); i++)
 			{
-				foods[i].upAlpha(3);
+				foods[i].upAlpha(3 * deltaTime);
 				foods[i].update();
 				foods[i].draw(renderer);
 				if (collideCenter(foods[i].rect, plr.rect))
 				{	
 					plr.scale += foods[i].scale;
-					plr.s_posX -= 0.5f;
-					plr.s_posY -= 0.5f;
+					plr.s_x -= 0.5f;
+					plr.s_y -= 0.5f;
 					plr.speedX *= 0.9f;
 					plr.speedY *= 0.9f;
 					plr.speed *= 1.01f;
@@ -363,7 +398,7 @@ int main(int argc, char* args[])
 			// get the current frame and render it with the rotation
 			plr.draw(plrTList, renderer);
 
-			if (plr.scale >= 40)
+			if (plr.scale >= 120)
 			{
 				SDL_RenderClear(renderer);
 				lvlTime += deltaTime / 100.0f;
@@ -389,14 +424,16 @@ int main(int argc, char* args[])
 		{
 			b = 20;
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-			plr.s_posX = -100;
-			plr.s_posY =  -100;
-			plr.speedX = 5 * windowScale;
-			plr.speedY = 5 * windowScale;
+			plr.s_x = -100;
+			plr.s_y =  -100;
+			plr.speedX = 5;
+			plr.speedY = 5;
 			plr.angle = 120;
 			plr.rotationSpeed = 10.0f;
 			plr.scale = 0;
 			plr.resetSpeed();
+			plr.alpha = 0;
+			plr.bool1 = true;
 
 			// creating crimps in random spots but in schools
 			for (int i = 0; i < 20; i++)
@@ -411,8 +448,8 @@ int main(int argc, char* args[])
 					crimp.schY = foodg_y;
 					if (200 > crimp.randAct)
 					{
-						crimp.speedX = (rand() % 3 - 1);
-						crimp.speedY = (rand() % 3 - 1);
+						crimp.speedX = rand() % 3 - 1;
+						crimp.speedY = rand() % 3 - 1;
 					}
 					crimps.push_back(crimp);
 				}
@@ -430,6 +467,10 @@ int main(int argc, char* args[])
 			{
 				ifquit(level2, gameRunning, event, window);
 			}
+
+			plr.upAlpha(deltaTime);
+
+			gameTime += deltaTime / 100.0;
 
 			if (crimps.size() > 100)
 			{
@@ -453,22 +494,25 @@ int main(int argc, char* args[])
 					crimps[i].actVar = 0;
 				}
 				crimps[i].actVar += 1 * deltaTime;
-				
+
 				crimps[i].update();
 				crimps[i].moveUpdate(deltaTime, plr.damp);
 				crimps[i].draw(renderer);
 
 				if (crimps.size() <= 100)
-					crimps[i].downAlpha(3);
+				{
+					crimps[i].downAlpha(1 * deltaTime);
+					crimps[i].y *= pow(1.005, deltaTime);
+				}
 
 				if (crimps.size() > 100)
 				{
-					crimps[i].upAlpha(3);
+					crimps[i].upAlpha(1 * deltaTime);
 					if (collideCenter(crimps[i].rect, plr.rect))
 					{
 						plr.scale += crimps[i].scale;
-						plr.s_posX -= 0.5f;
-						plr.s_posY -= 0.5f;
+						plr.s_x -= 0.5f;
+						plr.s_y -= 0.5f;
 						plr.speedX *= 0.9f;
 						plr.speedY *= 0.9f;
 						plr.speed *= 1.001f;
@@ -482,27 +526,21 @@ int main(int argc, char* args[])
 
 			if (crimps.size() <= 100)
 			{
-				plr.speedY += -0.15f;
-				if (plr.x > winW + 100 * windowScale ||
-				plr.x < -100 * windowScale ||
-				plr.y > winH + 100 * windowScale ||
-				plr.y < -100 * windowScale)
+				plr.speedY -= 0.1 * deltaTime;
+				plr.alpha -= 1 * deltaTime;
+				lvlTime += deltaTime / 100.0f;
+				if (lvlTime >= 5)
 				{
-					SDL_RenderClear(renderer);
-					lvlTime += deltaTime / 100.0f;
-					if (lvlTime >= 3)
+					b += deltaTime / 10.0f;
+					if (b >= 40)
 					{
-						b += deltaTime / 10.0f;
-						if (b >= 40)
-						{
-							b = 40;
-							lvlTime = 0;
-							level2 = false;
-							level3pre = true;
-						}
-						SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-						SDL_RenderClear(renderer);						
+						b = 40;
+						lvlTime = 0;
+						level2 = false;
+						level3pre = true;
 					}
+					SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+					SDL_RenderClear(renderer);						
 				}
 			}
 			// presents everything
@@ -512,21 +550,24 @@ int main(int argc, char* args[])
 		{
 			b = 40;
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
-			plr.s_posX = winW / 2 - plr.w;
-			plr.s_posY =  winH / 2 - plr.h;
-			plr.speedX = 5 * windowScale;
-			plr.speedY = 5 * windowScale;
+			plr.s_x = winW / 2 - plr.w;
+			plr.s_y =  winH / 2 - plr.h;
+			plr.resetSpeed();
+			plr.speedX = rand() % 5 + (-2);
+			plr.speedY = 5;
 			plr.angle = 120;
 			plr.rotationSpeed = 100.0f;
 			plr.scale = 0;
-			plr.resetSpeed();
+			plr.alpha = 0;
+			plr.bool1 = true;
+			
 			level3pre = false;
 			level3 = true;
 
 			// creating squids in random spots
 			for (int i = 0; i < 20; i++)
 			{
-				Entity squid = Entity(squT0, 14, 32, rand() % winW, rand() % winH, 56, 128, 0.15f, true);
+				Entity squid = Entity(squT0, 14, 32, rand() % winW, rand() % (winH + 200), 56, 128, 0.15f, true);
 				squid.scale = squid.randAlpha / 200.0f;
 				squid.speed *= squid.scale;
 				squid.currentFrame = rand() % 8;
@@ -548,47 +589,38 @@ int main(int argc, char* args[])
 			deltaNow = SDL_GetPerformanceCounter();
 			deltaTime = (double)(deltaNow - deltaLast) * 100 / (double)SDL_GetPerformanceFrequency();
 			SDL_RenderClear(renderer);
-
 			while (SDL_PollEvent(&event))
 			{
 				ifquit(level3, gameRunning, event, window);
 			}
 
+			plr.upAlpha(deltaTime);
+
+			gameTime += deltaTime / 100.0;
+
 			colTime += deltaTime / 100.0f;
 
 			for (unsigned int i = 0; i < squids.size(); i++)
 			{
-				if (collideCenter(squids[i].rect, plr.rect) && squids[i].randAlpha > 100 && colTime > 0.5)
+				if (collideCenter(squids[i].rect, plr.rect) && squids[i].randAlpha > 200 && colTime > 0.2)
 				{
 					if (plr.x - squids[i].x < 0)
 						{plr.speedX = rand() % 2 * -1;}
 					if (plr.x - squids[i].x > 0)
 						{plr.speedX = rand() % 2;}
 
-					plr.alpha -= 20;
+					plr.removeHealth(20);
 
 					colTime = 0;
 				}
 				
 				squids[i].currentFrame += 0.03f * deltaTime;
 				squids[i].tex = squTList[ftint(squids[i].currentFrame)];
-				if (squids[i].alpha < squids[i].randAlpha)
-				{
-					squids[i].upAlpha(3);
-					for (int o = 0; o < 9; ++o)
-					{
-						SDL_SetTextureAlphaMod(squTList[o], squids[i].alpha);
-					}
-				}
+				squids[i].upAlpha(1 * deltaTime);
 
 				if (ftint(squids[i].currentFrame) == 2)
 				{
 					squids[i].speedY = -3;
-				}
-
-				if (ftint(squids[i].currentFrame) == 6)
-				{
-					squids[i].speedY = 0.3;
 				}
 
 				if (squids[i].currentFrame > 7)
@@ -613,18 +645,33 @@ int main(int argc, char* args[])
 			
 			if (plr.y < -100)
 			{
-				plr.speedY = 0;
+				plr.s_y = -5000;
 				for (unsigned int i = 0; i < squids.size(); i++)
 				{
-					squids[i].downAlpha(6);
+					squids[i].downAlpha(2 * deltaTime);			
 				}
+
 				lvlTime += deltaTime / 100.0f;
 				if (lvlTime > 5)
 				{
 					SDL_RenderClear(renderer);
 					level3 = false;
 					level4pre = true;
+					plr.s_x = winW / 2;
+					plr.s_y = winH / 2;
 				}
+			}
+
+			if (plr.death)
+			{
+				plr.death = false;
+				level3 = false;
+				level0pre = true;
+				r = 0;
+				g = 0;
+				b = 0;
+				plr.s_x = winW / 2 - plr.w/2;
+				plr.s_y = winH / 2 - plr.h/2;
 			}
 
 			// presents everything
@@ -633,9 +680,11 @@ int main(int argc, char* args[])
 		if (level4pre)
 		{
 			b = 40;
+			plr.alpha = 0;
 			angler = Entity(angT0, 21, 13, winW/2, winH - 200, 160, 104, 0.4, true);
 			level4pre = false;
 			level4 = true;
+			plr.bool1 = true;
 		}
 		while (level4)
 		{
@@ -646,6 +695,8 @@ int main(int argc, char* args[])
 			{
 				ifquit(level4, gameRunning, event, window);
 			}
+
+			gameTime += deltaTime / 100.0;
 
 			// background color
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
@@ -663,9 +714,7 @@ int main(int argc, char* args[])
 					
 				if (angler.currentFrame > 3)
 				{
-					//angler.tex = angTList[0];
 					plr.removeHealth(100);
-					plr.s_posX += 100;
 					lvlTime = 0;
 				}
 				else
@@ -685,27 +734,58 @@ int main(int argc, char* args[])
 			}
 			
 			angler.moveUpdate(deltaTime, plr.damp);
-			angAngle -= angler.speed * 0.6f * deltaTime * windowScale;
+			angAngle -= angler.speed * 1.0f * deltaTime;
 			angAngleRadians = angAngle * M_PI / 180;
-			angler.speedY = sin(angAngleRadians) * deltaTime;
-			angler.speedX = cos(angAngleRadians) * deltaTime;
+			angler.speedY = sin(angAngleRadians) * 4.0f * deltaTime;
+			angler.speedX = cos(angAngleRadians) * 4.0f * deltaTime;
+			angler.upAlpha(3 * deltaTime);
 			SDL_RenderCopyEx(renderer, angler.tex, &angler.srcRect, &angler.rect, angAngle, NULL, SDL_FLIP_NONE);
 
-			plr.noExplore(winW, winH);
+			if (plr.alpha < plr.realAlpha && plr.bool1 == true)
+			{
+				plr.alpha += 1 * deltaTime;
+				if (plr.alpha >= plr.realAlpha){
+					plr.alpha = plr.realAlpha;
+					plr.bool1 = false;
+				}
+			}
+			if (plr.alpha > 100)
+				plr.noExplore(winW, winH);
+			
 			plr.update(winW, winH, deltaTime, keys);
 			plr.draw(plrTList, renderer);
 
-			if (plr.alpha <= 10)
+			if (plr.death)
 			{
+				plr.death = false;
 				level4 = false;
 				level0pre = true;
 				r = 0;
 				g = 0;
 				b = 0;
-				plr.s_posX = winW/2;
-				plr.s_posY = winH/2;
+				plr.s_x = winW/2 - plr.w/2;
+				plr.s_y = winH/2 - plr.w/2;
+				plr.alpha = 0;
+			}
+
+			if (plr.x > winW + 100 || plr.x < 0 - 100 || plr.y > winH + 100 || plr.y < 0 - 100) {
+				level4 = false;
+				win = true;
 			}
 			SDL_RenderPresent(renderer);
+		}
+
+		if (win)
+		{
+			r = 0;
+			g = 0;
+			b = 0;
+			menu = true;
+			score = gameTime;
+
+			foods.clear();
+			crimps.clear();
+			squids.clear();
 		}
 	}
 	// sdl needs a return value for some reason

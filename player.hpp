@@ -36,8 +36,8 @@ public:
 	used with variables instead of just plr.x
 	because plr.x acts wierd (maybe it 
 	gets rounded) */
-	float s_posX;
-	float s_posY;
+	float s_x;
+	float s_y;
 	float posX;
 	float posY;
 
@@ -56,8 +56,12 @@ public:
 	int g;
 	int b;
 	float alpha;
+	float realAlpha;
 
 	double Time;
+
+	bool bool1;
+	bool death;
 
     Player(SDL_Texture *ptex, int px, int py, float pw, float ph);
 
@@ -72,4 +76,6 @@ public:
 	void noExplore(int winW, int winH);
 
 	void removeHealth(int amount);
+
+	void upAlpha(double deltaTime);
 };

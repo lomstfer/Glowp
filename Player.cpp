@@ -41,8 +41,8 @@ Player::Player(SDL_Texture *ptex, int px, int py, float pw, float ph)
 	scale = 0;
 
 	// the simulated position 
-	s_posX = x;
-	s_posY = y;
+	s_x = x;
+	s_y = y;
 
     currentFrame = 0;
 
@@ -66,8 +66,13 @@ Player::Player(SDL_Texture *ptex, int px, int py, float pw, float ph)
 	g = 255;
 	b = 255;
 	alpha = 255;
+	realAlpha = alpha;
 
 	Time = 0;
+
+	death = false;
+
+	bool1 = true;
 }
 
 void Player::update(int winW, int winH, double deltaTime, const Uint8 *keys)
@@ -75,8 +80,8 @@ void Player::update(int winW, int winH, double deltaTime, const Uint8 *keys)
 	Time += deltaTime / 100.0f;
     // make the current position the last simulated position, 
     // simulated used to prevent light/small tunneling but does not prevent tunneling 
-    x = s_posX;
-    y = s_posY;
+    x = s_x;
+    y = s_y;
 
 	currentFrame += animationSpeed * deltaTime;
 
@@ -156,8 +161,8 @@ void Player::update(int winW, int winH, double deltaTime, const Uint8 *keys)
 	}
 
 	// add values to simulated position
-	s_posX += speedX * deltaTime;
-	s_posY += speedY * deltaTime;
+	s_x += speedX * deltaTime;
+	s_y += speedY * deltaTime;
 
 	// make the actual values the "safe"/old values 
 	rect.x = ftint(x);
@@ -188,34 +193,34 @@ void Player::resetSpeed()
 void Player::noExplore(int winW, int winH)
 {
 	// left stop
-	if (s_posX + rect.w/4 <= 0)
+	if (s_x + rect.w/4 <= 0)
 	{
 		x = 0 - rect.w/4;
-		s_posX = x;
+		s_x = x;
 		speedX *= -1;
 	}
 
 	// right stop
-	if (s_posX + rect.w - rect.w/4 >= winW)
+	if (s_x + rect.w - rect.w/4 >= winW)
 	{
 		x = winW - rect.h + rect.w/4;
-		s_posX = x;
+		s_x = x;
 		speedX *= -1;
 	}
 
 	// up stop
-	if (s_posY + rect.h/4 <= 0)
+	if (s_y + rect.h/4 <= 0)
 	{
 		y = 0 - rect.h/4;
-		s_posY = y;
+		s_y = y;
 		speedY *= -1;
 	}
 
 	// down stop
-	if (s_posY + rect.h - rect.h/4 >= winH )
+	if (s_y + rect.h - rect.h/4 >= winH )
 	{
 		y = winH - rect.h + rect.h/4;
-		s_posY = y;
+		s_y = y;
 		speedY *= -1;
 	}
 }
@@ -223,4 +228,19 @@ void Player::noExplore(int winW, int winH)
 void Player::removeHealth(int amount)
 {
 	alpha -= amount;
+	realAlpha = alpha;
+	if (alpha < 20)
+		death = true;
+}
+
+void Player::upAlpha(double deltaTime)
+{
+	if (alpha < realAlpha && bool1 == true)
+	{
+		alpha += 1 * deltaTime;
+		if (alpha >= realAlpha) {
+			alpha = realAlpha;
+			bool1 = false;
+		}
+	}
 }

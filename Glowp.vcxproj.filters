@@ -24,7 +24,7 @@
     <ClInclude Include="Ftint.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player.hpp">
+    <ClInclude Include="Player.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
+    <ClCompile Include="player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="text.cpp">

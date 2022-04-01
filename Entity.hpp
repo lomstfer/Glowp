@@ -34,6 +34,6 @@ public:
 
     void moveUpdate(double deltaTime, float damp);
 
-    void downAlpha(int speed);
-    void upAlpha(int speed);
+    void downAlpha(float speed);
+    void upAlpha(float speed);
 };
