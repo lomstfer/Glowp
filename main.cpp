@@ -226,6 +226,7 @@ int main(int argc, char* args[])
 				SDL_RenderSetLogicalSize(renderer, winW, winH);
 			}
 			
+			SDL_SetRenderDrawColor(renderer, r, b, g, 255);
 			SDL_RenderClear(renderer);
 			titleText.render();
 			instText.render();
@@ -244,14 +245,16 @@ int main(int argc, char* args[])
 
 			if (win)
 			{
-				if (ftint(highscore) > ftint(score))
+				if (ftint(score) > ftint(highscore))
 				{
-					highscore = gameTime;
-					highScoreText.text = "NEW HIGHSCORE: " + std::to_string(ftint(highscore)) + " seconds";
+					highscore = score + 1;
+					highScoreText.text = "NEW HIGHSCORE: " + std::to_string(float(highscore) - 1.0f) + " seconds";
+					if (keys[SDL_SCANCODE_RETURN])
+						highscore -= 1;
 				}
-				if (ftint(highscore) < ftint(score))
+				if (ftint(score) <= ftint(highscore))
 				{
-					highScoreText.text = "HIGHSCORE: " + std::to_string(ftint(highscore)) + " seconds";
+					highScoreText.text = "HIGHSCORE: " + std::to_string(highscore) + " seconds";
 				}
 
 				highScoreText.update();
@@ -266,6 +269,7 @@ int main(int argc, char* args[])
 				menu = false;
 				level0pre = true;
 				gameTime = 0;
+				
 				plr = Player(plrT, winW / 2, winH / 2, 32, 32);
 			}
 
@@ -304,7 +308,7 @@ int main(int argc, char* args[])
 			layer0.update();
 			layer0.draw(renderer);
 
-			plr.upAlpha(deltaTime);
+			plr.upAlpha(1 * deltaTime);
 			plr.update(winW, winH, deltaTime, keys);
 			plr.draw(plrTList, renderer);
 			// get the current frame and render it with the rotation
@@ -316,7 +320,7 @@ int main(int argc, char* args[])
 				plr.y < -100 * windowScale)
 			{
 				plr.speed = 0;
-				layer0.downAlpha(3);
+				layer0.downAlpha(4 * deltaTime);
 				layer0.update();
 				layer0.draw(renderer);
 
@@ -365,7 +369,7 @@ int main(int argc, char* args[])
 				ifquit(level1, gameRunning, event, window);
 			}
 
-			plr.upAlpha(deltaTime);
+			plr.upAlpha(1 * deltaTime);
 
 			gameTime += deltaTime / 100.0;
 
@@ -393,17 +397,22 @@ int main(int argc, char* args[])
 					plr.speed *= 1.01f;
 					foods.erase(foods.begin() + i);
 				}
+				if (plr.scale >= 3)
+				{
+					foods[i].downAlpha(4 * deltaTime);
+				}
 			}
 
 			// get the current frame and render it with the rotation
 			plr.draw(plrTList, renderer);
 
-			if (plr.scale >= 120)
+			if (plr.scale >= 3)
 			{
-				SDL_RenderClear(renderer);
+				plr.downAlpha(3 * deltaTime);
 				lvlTime += deltaTime / 100.0f;
 				if (lvlTime >= 3)
 				{
+					SDL_RenderClear(renderer);
 					b += deltaTime / 10.0f;
 					if (b >= 20)
 					{
@@ -468,11 +477,11 @@ int main(int argc, char* args[])
 				ifquit(level2, gameRunning, event, window);
 			}
 
-			plr.upAlpha(deltaTime);
+			plr.upAlpha(1 * deltaTime);
 
 			gameTime += deltaTime / 100.0;
 
-			if (crimps.size() > 100)
+			if (crimps.size() > 190)
 			{
 				plr.noExplore(winW, winH);
 			}
@@ -499,13 +508,13 @@ int main(int argc, char* args[])
 				crimps[i].moveUpdate(deltaTime, plr.damp);
 				crimps[i].draw(renderer);
 
-				if (crimps.size() <= 100)
+				if (crimps.size() <= 190)
 				{
 					crimps[i].downAlpha(1 * deltaTime);
 					crimps[i].y *= pow(1.005, deltaTime);
 				}
 
-				if (crimps.size() > 100)
+				if (crimps.size() > 190)
 				{
 					crimps[i].upAlpha(1 * deltaTime);
 					if (collideCenter(crimps[i].rect, plr.rect))
@@ -527,7 +536,7 @@ int main(int argc, char* args[])
 			if (crimps.size() <= 100)
 			{
 				plr.speedY -= 0.1 * deltaTime;
-				plr.alpha -= 1 * deltaTime;
+				plr.downAlpha(2 * deltaTime);
 				lvlTime += deltaTime / 100.0f;
 				if (lvlTime >= 5)
 				{
@@ -594,7 +603,7 @@ int main(int argc, char* args[])
 				ifquit(level3, gameRunning, event, window);
 			}
 
-			plr.upAlpha(deltaTime);
+			plr.upAlpha(1 * deltaTime);
 
 			gameTime += deltaTime / 100.0;
 
@@ -672,6 +681,8 @@ int main(int argc, char* args[])
 				b = 0;
 				plr.s_x = winW / 2 - plr.w/2;
 				plr.s_y = winH / 2 - plr.h/2;
+				plr.alpha = 0;
+				plr.bool1 = true;
 			}
 
 			// presents everything
@@ -736,8 +747,8 @@ int main(int argc, char* args[])
 			angler.moveUpdate(deltaTime, plr.damp);
 			angAngle -= angler.speed * 1.0f * deltaTime;
 			angAngleRadians = angAngle * M_PI / 180;
-			angler.speedY = sin(angAngleRadians) * 4.0f * deltaTime;
-			angler.speedX = cos(angAngleRadians) * 4.0f * deltaTime;
+			angler.speedY = sin(angAngleRadians) * 2.0f * deltaTime;
+			angler.speedX = cos(angAngleRadians) * 2.0f * deltaTime;
 			angler.upAlpha(3 * deltaTime);
 			SDL_RenderCopyEx(renderer, angler.tex, &angler.srcRect, &angler.rect, angAngle, NULL, SDL_FLIP_NONE);
 
@@ -766,6 +777,7 @@ int main(int argc, char* args[])
 				plr.s_x = winW/2 - plr.w/2;
 				plr.s_y = winH/2 - plr.w/2;
 				plr.alpha = 0;
+				plr.bool1 = true;
 			}
 
 			if (plr.x > winW + 100 || plr.x < 0 - 100 || plr.y > winH + 100 || plr.y < 0 - 100) {

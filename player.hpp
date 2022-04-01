@@ -77,5 +77,7 @@ public:
 
 	void removeHealth(int amount);
 
-	void upAlpha(double deltaTime);
+	void upAlpha(float speed);
+
+	void downAlpha(float speed);
 };

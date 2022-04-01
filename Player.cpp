@@ -233,14 +233,25 @@ void Player::removeHealth(int amount)
 		death = true;
 }
 
-void Player::upAlpha(double deltaTime)
+void Player::upAlpha(float speed)
 {
 	if (alpha < realAlpha && bool1 == true)
 	{
-		alpha += 1 * deltaTime;
+		alpha += speed;
 		if (alpha >= realAlpha) {
 			alpha = realAlpha;
 			bool1 = false;
+		}
+	}
+}
+
+void Player::downAlpha(float speed)
+{
+	if (alpha > 0)
+	{
+		alpha -= speed;
+		if (alpha <= 0) {
+			alpha = 0;
 		}
 	}
 }
