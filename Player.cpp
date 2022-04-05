@@ -38,7 +38,7 @@ Player::Player(SDL_Texture *ptex, int px, int py, float pw, float ph)
     rect.w = ftint(w);
     rect.h = ftint(h);
 
-	scale = 0;
+	scale = 0.0f;
 
 	// the simulated position 
 	s_x = x;

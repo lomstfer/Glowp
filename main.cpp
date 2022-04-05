@@ -166,7 +166,7 @@ int main(int argc, char* args[])
 	bool menu = true;
 	bool setResolution = false;
 	int setResIndex = 2;
-	int fullscreenMode = 1;
+	int fullscreenMode = -1;
 
 	int r = 0;
 	int g = 0;
@@ -188,6 +188,10 @@ int main(int argc, char* args[])
 
 	bool level4 = false;
 	bool level4pre = false;
+
+	bool level5 = false;
+	bool level5pre = false;
+	std::vector<Player> glowps;
 
 	bool win = false;
 
@@ -247,10 +251,10 @@ int main(int argc, char* args[])
 			{
 				if (ftint(score) > ftint(highscore))
 				{
-					highscore = score + 1;
-					highScoreText.text = "NEW HIGHSCORE: " + std::to_string(float(highscore) - 1.0f) + " seconds";
+					highscore = score - 1;
+					highScoreText.text = "NEW HIGHSCORE: " + std::to_string(float(highscore) + 1.0f) + " seconds";
 					if (keys[SDL_SCANCODE_RETURN])
-						highscore -= 1;
+						highscore += 1;
 				}
 				if (ftint(score) <= ftint(highscore))
 				{
@@ -267,7 +271,7 @@ int main(int argc, char* args[])
 				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 				win = false;
 				menu = false;
-				level0pre = true;
+				level5pre = true;
 				gameTime = 0;
 				
 				plr = Player(plrT, winW / 2, winH / 2, 32, 32);
@@ -285,6 +289,7 @@ int main(int argc, char* args[])
 			level0pre = false;
 			level0 = true;
 			plr.alpha = 0;
+			plr.realAlpha = 255;
 		}
 		while (level0)
 		{
@@ -389,15 +394,14 @@ int main(int argc, char* args[])
 				foods[i].draw(renderer);
 				if (collideCenter(foods[i].rect, plr.rect))
 				{	
-					plr.scale += foods[i].scale;
-					plr.s_x -= 0.5f;
-					plr.s_y -= 0.5f;
+					plr.scale += 0.5f;
+					plr.s_x -= 0.1f / 2.0f;
+					plr.s_y -= 0.1f / 2.0f;
 					plr.speedX *= 0.9f;
 					plr.speedY *= 0.9f;
-					plr.speed *= 1.01f;
 					foods.erase(foods.begin() + i);
 				}
-				if (plr.scale >= 3)
+				if (plr.scale >= 20)
 				{
 					foods[i].downAlpha(4 * deltaTime);
 				}
@@ -406,9 +410,9 @@ int main(int argc, char* args[])
 			// get the current frame and render it with the rotation
 			plr.draw(plrTList, renderer);
 
-			if (plr.scale >= 3)
+			if (plr.scale >= 20)
 			{
-				plr.downAlpha(3 * deltaTime);
+				plr.downAlpha(1.2 * deltaTime);
 				lvlTime += deltaTime / 100.0f;
 				if (lvlTime >= 3)
 				{
@@ -481,7 +485,7 @@ int main(int argc, char* args[])
 
 			gameTime += deltaTime / 100.0;
 
-			if (crimps.size() > 190)
+			if (crimps.size() > 100)
 			{
 				plr.noExplore(winW, winH);
 			}
@@ -490,7 +494,7 @@ int main(int argc, char* args[])
 
 			for (unsigned int i = 0; i < crimps.size(); i++)
 			{
-				if (crimps[i].actVar >= crimps[i].randAct)
+				if (crimps[i].actVar >= crimps[i].randAct && crimps.size() > 100)
 				{
 					if (crimps[i].schX - crimps[i].x < 0)
 						crimps[i].speedX = rand() % 2 * -1;
@@ -508,23 +512,22 @@ int main(int argc, char* args[])
 				crimps[i].moveUpdate(deltaTime, plr.damp);
 				crimps[i].draw(renderer);
 
-				if (crimps.size() <= 190)
+				if (crimps.size() <= 100)
 				{
 					crimps[i].downAlpha(1 * deltaTime);
-					crimps[i].y *= pow(1.005, deltaTime);
+					crimps[i].speedY += crimps[i].randAlpha / 10000 * deltaTime;
 				}
 
-				if (crimps.size() > 190)
+				if (crimps.size() > 100)
 				{
 					crimps[i].upAlpha(1 * deltaTime);
 					if (collideCenter(crimps[i].rect, plr.rect))
 					{
-						plr.scale += crimps[i].scale;
+						plr.scale += 1.0f;
 						plr.s_x -= 0.5f;
 						plr.s_y -= 0.5f;
 						plr.speedX *= 0.9f;
 						plr.speedY *= 0.9f;
-						plr.speed *= 1.001f;
 						crimps.erase(crimps.begin() + i);
 					}
 				}
@@ -560,10 +563,10 @@ int main(int argc, char* args[])
 			b = 40;
 			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
 			plr.s_x = winW / 2 - plr.w;
-			plr.s_y =  winH / 2 - plr.h;
+			plr.s_y =  winH + plr.h; 
 			plr.resetSpeed();
 			plr.speedX = rand() % 5 + (-2);
-			plr.speedY = 5;
+			plr.speedY = -5;
 			plr.angle = 120;
 			plr.rotationSpeed = 100.0f;
 			plr.scale = 0;
@@ -683,6 +686,7 @@ int main(int argc, char* args[])
 				plr.s_y = winH / 2 - plr.h/2;
 				plr.alpha = 0;
 				plr.bool1 = true;
+				plr.realAlpha = 255;
 			}
 
 			// presents everything
@@ -693,9 +697,11 @@ int main(int argc, char* args[])
 			b = 40;
 			plr.alpha = 0;
 			angler = Entity(angT0, 21, 13, winW/2, winH - 200, 160, 104, 0.4, true);
+			angler.randAlpha = 180;
 			level4pre = false;
 			level4 = true;
 			plr.bool1 = true;
+			lvlTime = 0;
 		}
 		while (level4)
 		{
@@ -747,8 +753,8 @@ int main(int argc, char* args[])
 			angler.moveUpdate(deltaTime, plr.damp);
 			angAngle -= angler.speed * 1.0f * deltaTime;
 			angAngleRadians = angAngle * M_PI / 180;
-			angler.speedY = sin(angAngleRadians) * 2.0f * deltaTime;
-			angler.speedX = cos(angAngleRadians) * 2.0f * deltaTime;
+			angler.speedY = sin(angAngleRadians) * 3.0f;
+			angler.speedX = cos(angAngleRadians) * 3.0f;
 			angler.upAlpha(3 * deltaTime);
 			SDL_RenderCopyEx(renderer, angler.tex, &angler.srcRect, &angler.rect, angAngle, NULL, SDL_FLIP_NONE);
 
@@ -760,7 +766,7 @@ int main(int argc, char* args[])
 					plr.bool1 = false;
 				}
 			}
-			if (plr.alpha > 100)
+			if (plr.alpha > 80)
 				plr.noExplore(winW, winH);
 			
 			plr.update(winW, winH, deltaTime, keys);
@@ -778,12 +784,94 @@ int main(int argc, char* args[])
 				plr.s_y = winH/2 - plr.w/2;
 				plr.alpha = 0;
 				plr.bool1 = true;
+				plr.realAlpha = 255;
 			}
 
 			if (plr.x > winW + 100 || plr.x < 0 - 100 || plr.y > winH + 100 || plr.y < 0 - 100) {
-				level4 = false;
-				win = true;
+				plr.s_x = -5000;
+				b += 1.0f * deltaTime;
+				g += 0.5f * deltaTime;
+				lvlTime += 5.0f * (deltaTime / 100.0);
+				if (b > 160 && g >= 60 && lvlTime > 20)
+				{
+					lvlTime = 0;
+					level4 = false;
+					level5pre = true;
+				}
+				
 			}
+			SDL_RenderPresent(renderer);
+		}
+
+		while (level5pre)
+		{
+			b = 160;
+			g = 60;
+			plr.alpha = 0;
+			plr.s_x = winW / 2 - plr.w / 2;
+			plr.s_y = winH / 2 - plr.h / 2;
+			level5pre = false;
+			level5 = true;
+			for (int i = 0; i < 50; ++i)
+			{
+				int randSize = rand() % 64 + 8;
+				
+				glowps.emplace_back(plr.tex, rand() % winW, rand() % winH, randSize, randSize);
+			}
+		}
+
+		while (level5)
+		{
+			deltaLast = deltaNow;
+			deltaNow = SDL_GetPerformanceCounter();
+			deltaTime = (double)(deltaNow - deltaLast) * 100 / (double)SDL_GetPerformanceFrequency();
+			while (SDL_PollEvent(&event))
+			{
+				ifquit(level4, gameRunning, event, window);
+			}
+
+			gameTime += deltaTime / 100.0;
+
+			// background color
+			SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+
+			// clear old stuff with color
+			SDL_RenderClear(renderer);
+
+			for (int i = 0; i < glowps.size(); ++i)
+			{
+				glowps[i].update(winW, winH, deltaTime, keys);
+				if (glowps[i].x < 0 - glowps[i].w - 100) {
+					glowps[i].s_x = winW + glowps[i].w + rand() % 50 + 100;
+					glowps[i].s_y = rand() % winH;
+				}
+				if (glowps[i].y < 0 - glowps[i].h - 100) {
+					glowps[i].s_y = winW + glowps[i].w + rand() % 50 + 100;
+					glowps[i].s_x = rand() % winW;
+				}
+				if (glowps[i].x > winW + glowps[i].w + 100) {
+					glowps[i].s_x = winW - glowps[i].w - (rand() % 50 + 100);
+					glowps[i].s_y = rand() % winH;
+				}
+				if (glowps[i].y > winH + glowps[i].h + 100) {
+					glowps[i].s_y = 0 - glowps[i].w - (rand() % 50 + 100);
+					glowps[i].s_x = rand() % winW;
+				}
+				glowps[i].draw(plrTList, renderer);
+			}
+
+			if (plr.alpha < plr.realAlpha && plr.bool1 == true)
+			{
+				plr.alpha += 1 * deltaTime;
+				if (plr.alpha >= plr.realAlpha) {
+					plr.alpha = plr.realAlpha;
+					plr.bool1 = false;
+				}
+			}
+
+			plr.update(winW, winH, deltaTime, keys);
+			plr.draw(plrTList, renderer);
+
 			SDL_RenderPresent(renderer);
 		}
 
