@@ -180,6 +180,10 @@ void Player::update(int winW, int winH, double deltaTime, const Uint8 *keys)
 
 void Player::draw(SDL_Texture* TList [9], SDL_Renderer* renderer)
 {
+	rect.x = ftint(x);
+	rect.y = ftint(y);
+	rect.w = ftint(w + scale);
+	rect.h = ftint(h + scale);
 	tex = TList[int(currentFrame)];
 	SDL_SetTextureAlphaMod(tex, alpha);
 	SDL_RenderCopyEx(renderer, tex, &srcRect, &rect, angle, NULL, SDL_FLIP_NONE);

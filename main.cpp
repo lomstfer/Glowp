@@ -191,10 +191,11 @@ int main(int argc, char* args[])
 
 	bool level5 = false;
 	bool level5pre = false;
+	int level5var = 0;
 	std::vector<Player> glowps;
+	float textsalpha = 0;
 
 	bool win = false;
-
 
 	// game loop
 	while (gameRunning)
@@ -290,6 +291,9 @@ int main(int argc, char* args[])
 			level0 = true;
 			plr.alpha = 0;
 			plr.realAlpha = 255;
+			r = 0;
+			g = 0;
+			b = 0;
 		}
 		while (level0)
 		{
@@ -818,6 +822,9 @@ int main(int argc, char* args[])
 				
 				glowps.emplace_back(plr.tex, rand() % winW, rand() % winH, randSize, randSize);
 			}
+			SDL_SetTextureAlphaMod(instText.textTex, 0);
+			SDL_SetTextureAlphaMod(highScoreText.textTex, 0);
+			textsalpha = 1;
 		}
 
 		while (level5)
@@ -827,7 +834,7 @@ int main(int argc, char* args[])
 			deltaTime = (double)(deltaNow - deltaLast) * 100 / (double)SDL_GetPerformanceFrequency();
 			while (SDL_PollEvent(&event))
 			{
-				ifquit(level4, gameRunning, event, window);
+				ifquit(level5, gameRunning, event, window);
 			}
 
 			gameTime += deltaTime / 100.0;
@@ -841,20 +848,20 @@ int main(int argc, char* args[])
 			for (int i = 0; i < glowps.size(); ++i)
 			{
 				glowps[i].update(winW, winH, deltaTime, keys);
-				if (glowps[i].x < 0 - glowps[i].w - 100) {
-					glowps[i].s_x = winW + glowps[i].w + rand() % 50 + 100;
+				if (glowps[i].x < 0 - glowps[i].w) {
+					glowps[i].s_x = winW + glowps[i].w;
 					glowps[i].s_y = rand() % winH;
 				}
-				if (glowps[i].y < 0 - glowps[i].h - 100) {
-					glowps[i].s_y = winW + glowps[i].w + rand() % 50 + 100;
+				if (glowps[i].y < 0 - glowps[i].h) {
+					glowps[i].s_y = winH + glowps[i].w;
 					glowps[i].s_x = rand() % winW;
 				}
-				if (glowps[i].x > winW + glowps[i].w + 100) {
-					glowps[i].s_x = winW - glowps[i].w - (rand() % 50 + 100);
+				if (glowps[i].x > winW + glowps[i].w) {
+					glowps[i].s_x = 0 - glowps[i].w;
 					glowps[i].s_y = rand() % winH;
 				}
-				if (glowps[i].y > winH + glowps[i].h + 100) {
-					glowps[i].s_y = 0 - glowps[i].w - (rand() % 50 + 100);
+				if (glowps[i].y > winH + glowps[i].h) {
+					glowps[i].s_y = 0 - glowps[i].h;
 					glowps[i].s_x = rand() % winW;
 				}
 				glowps[i].draw(plrTList, renderer);
@@ -871,6 +878,36 @@ int main(int argc, char* args[])
 
 			plr.update(winW, winH, deltaTime, keys);
 			plr.draw(plrTList, renderer);
+
+			if (ftint(score) > ftint(highscore))
+			{
+				highscore = score - 1;
+				highScoreText.text = "NEW HIGHSCORE: " + std::to_string(float(highscore) + 1.0f) + " seconds";
+				if (keys[SDL_SCANCODE_RETURN])
+					highscore += 1;
+			}
+			if (ftint(score) <= ftint(highscore))
+			{
+				highScoreText.text = "HIGHSCORE: " + std::to_string(highscore) + " seconds";
+			}
+			if (textsalpha < 255)
+				textsalpha += textsalpha / 100.0;
+			else
+				textsalpha = 255;
+			instText.text = "ENTER TO START OVER - ESCAPE TO EXIT";
+			instText.update();
+			SDL_SetTextureAlphaMod(instText.textTex, textsalpha);
+			instText.render();
+			highScoreText.update();
+			SDL_SetTextureAlphaMod(highScoreText.textTex, textsalpha);
+			highScoreText.render();
+			if (keys[SDL_SCANCODE_RETURN] && level5var >= 1) {
+				level5 = false;
+				level0pre = true;
+				gameTime = 0;
+				level5var = 0;
+			}
+			level5var += 1 * deltaTime;
 
 			SDL_RenderPresent(renderer);
 		}
