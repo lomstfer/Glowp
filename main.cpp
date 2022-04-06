@@ -832,10 +832,10 @@ int main(int argc, char* args[])
 			level5 = true;
 			for (int i = 0; i < 50; ++i)
 			{
-				int randSize = rand() % 64 + 8;
+				int randSize = (rand() % 640 + 80) / 10.0;
 				Player glowps1 = Player(plr.tex, rand() % winW, rand() % winH, randSize, randSize);
 				glowps1.alpha = 0;
-				glowps1.realAlpha = 255 / (randSize / 32);
+				glowps1.realAlpha = randSize / 32 * 40;
 				glowps1.speed *= randSize / 32;
 				glowps.push_back(glowps1);
 			}
