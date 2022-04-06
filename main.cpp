@@ -168,8 +168,8 @@ int main(int argc, char* args[])
 	int setResIndex = 2;
 	int fullscreenMode = -1;
 
-	int r = 0;
-	int g = 0;
+	float r = 0;
+	float g = 0;
 	float b = 0;
 
 	bool level0 = false;
@@ -272,10 +272,11 @@ int main(int argc, char* args[])
 				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 				win = false;
 				menu = false;
-				level5pre = true;
+				level4pre = true;
 				gameTime = 0;
 				
 				plr = Player(plrT, winW / 2, winH / 2, 32, 32);
+				plr.realAlpha = 79;
 			}
 
 			// presents everything
@@ -294,6 +295,8 @@ int main(int argc, char* args[])
 			r = 0;
 			g = 0;
 			b = 0;
+			plr.s_x = winW / 2 - plr.w / 2;
+			plr.s_y = winH / 2 - plr.h / 2;
 		}
 		while (level0)
 		{
@@ -688,6 +691,9 @@ int main(int argc, char* args[])
 				b = 0;
 				plr.s_x = winW / 2 - plr.w/2;
 				plr.s_y = winH / 2 - plr.h/2;
+				plr.speedX = 0;
+				plr.speedY = 0;
+				plr.angle = 0;
 				plr.alpha = 0;
 				plr.bool1 = true;
 				plr.realAlpha = 255;
@@ -786,6 +792,9 @@ int main(int argc, char* args[])
 				b = 0;
 				plr.s_x = winW/2 - plr.w/2;
 				plr.s_y = winH/2 - plr.w/2;
+				plr.speedX = 0;
+				plr.speedY = 0;
+				plr.angle = 0;
 				plr.alpha = 0;
 				plr.bool1 = true;
 				plr.realAlpha = 255;
@@ -793,10 +802,12 @@ int main(int argc, char* args[])
 
 			if (plr.x > winW + 100 || plr.x < 0 - 100 || plr.y > winH + 100 || plr.y < 0 - 100) {
 				plr.s_x = -5000;
-				b += 1.0f * deltaTime;
-				g += 0.5f * deltaTime;
-				lvlTime += 5.0f * (deltaTime / 100.0);
-				if (b > 160 && g >= 60 && lvlTime > 20)
+				if (b < 160)
+					b += 1.0f * deltaTime;
+				if (g < 60)
+					g += 0.5f * deltaTime;
+				angler.downAlpha(6 * deltaTime);
+				if (b >= 160 && g >= 60)
 				{
 					lvlTime = 0;
 					level4 = false;
@@ -809,18 +820,24 @@ int main(int argc, char* args[])
 
 		while (level5pre)
 		{
+			score = gameTime;
 			b = 160;
 			g = 60;
 			plr.alpha = 0;
+			plr.angle = 0;	
 			plr.s_x = winW / 2 - plr.w / 2;
 			plr.s_y = winH / 2 - plr.h / 2;
+			plr.bool1 = true;
 			level5pre = false;
 			level5 = true;
 			for (int i = 0; i < 50; ++i)
 			{
 				int randSize = rand() % 64 + 8;
-				
-				glowps.emplace_back(plr.tex, rand() % winW, rand() % winH, randSize, randSize);
+				Player glowps1 = Player(plr.tex, rand() % winW, rand() % winH, randSize, randSize);
+				glowps1.alpha = 0;
+				glowps1.realAlpha = 255 / (randSize / 32);
+				glowps1.speed *= randSize / 32;
+				glowps.push_back(glowps1);
 			}
 			SDL_SetTextureAlphaMod(instText.textTex, 0);
 			SDL_SetTextureAlphaMod(highScoreText.textTex, 0);
@@ -847,6 +864,7 @@ int main(int argc, char* args[])
 
 			for (int i = 0; i < glowps.size(); ++i)
 			{
+				glowps[i].upAlpha(3 * deltaTime);
 				glowps[i].update(winW, winH, deltaTime, keys);
 				if (glowps[i].x < 0 - glowps[i].w) {
 					glowps[i].s_x = winW + glowps[i].w;
@@ -883,7 +901,7 @@ int main(int argc, char* args[])
 			{
 				highscore = score - 1;
 				highScoreText.text = "NEW HIGHSCORE: " + std::to_string(float(highscore) + 1.0f) + " seconds";
-				if (keys[SDL_SCANCODE_RETURN])
+				if (keys[SDL_SCANCODE_RETURN] && level5var >= 1)
 					highscore += 1;
 			}
 			if (ftint(score) <= ftint(highscore))
@@ -891,7 +909,7 @@ int main(int argc, char* args[])
 				highScoreText.text = "HIGHSCORE: " + std::to_string(highscore) + " seconds";
 			}
 			if (textsalpha < 255)
-				textsalpha += textsalpha / 100.0;
+				textsalpha += textsalpha / 50.0;
 			else
 				textsalpha = 255;
 			instText.text = "ENTER TO START OVER - ESCAPE TO EXIT";
@@ -901,28 +919,20 @@ int main(int argc, char* args[])
 			highScoreText.update();
 			SDL_SetTextureAlphaMod(highScoreText.textTex, textsalpha);
 			highScoreText.render();
-			if (keys[SDL_SCANCODE_RETURN] && level5var >= 1) {
+			if (keys[SDL_SCANCODE_RETURN]) {
 				level5 = false;
 				level0pre = true;
 				gameTime = 0;
-				level5var = 0;
+				lvlTime = 0;
+				foods.clear();
+				crimps.clear();
+				squids.clear();
+				glowps.clear();
+				SDL_RenderClear(renderer);
 			}
 			level5var += 1 * deltaTime;
 
 			SDL_RenderPresent(renderer);
-		}
-
-		if (win)
-		{
-			r = 0;
-			g = 0;
-			b = 0;
-			menu = true;
-			score = gameTime;
-
-			foods.clear();
-			crimps.clear();
-			squids.clear();
 		}
 	}
 	// sdl needs a return value for some reason
