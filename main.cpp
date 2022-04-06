@@ -272,7 +272,7 @@ int main(int argc, char* args[])
 				SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 				win = false;
 				menu = false;
-				level4pre = true;
+				level0pre = true;
 				gameTime = 0;
 				
 				plr = Player(plrT, winW / 2, winH / 2, 32, 32);
@@ -621,12 +621,12 @@ int main(int argc, char* args[])
 
 			for (unsigned int i = 0; i < squids.size(); i++)
 			{
-				if (collideCenter(squids[i].rect, plr.rect) && squids[i].randAlpha > 200 && colTime > 0.2)
+				if (collideCenter(squids[i].rect, plr.rect) && squids[i].randAlpha > 200 && colTime > 0.5)
 				{
 					if (plr.x - squids[i].x < 0)
-						{plr.speedX = rand() % 2 * -1;}
+						plr.speedX = rand() % 2 * -1;
 					if (plr.x - squids[i].x > 0)
-						{plr.speedX = rand() % 2;}
+						plr.speedX = rand() % 2;
 
 					plr.removeHealth(20);
 
@@ -817,7 +817,6 @@ int main(int argc, char* args[])
 			}
 			SDL_RenderPresent(renderer);
 		}
-
 		while (level5pre)
 		{
 			score = gameTime;
@@ -843,7 +842,6 @@ int main(int argc, char* args[])
 			SDL_SetTextureAlphaMod(highScoreText.textTex, 0);
 			textsalpha = 1;
 		}
-
 		while (level5)
 		{
 			deltaLast = deltaNow;
